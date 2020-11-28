@@ -10,9 +10,58 @@ let dvd;
 
 let faces = [];
 
-let faceCount;
+let faceCount = 20;
 
 let r, g, b;
+
+let iterations;
+
+class FaceSprite{
+  constructor(xPos, yPos, xSpeed, ySpeed) {
+    this.xSpeed = xSpeed;
+    this.ySpeed = ySpeed;
+    let imageRight = loadImage('res/falafelFaceRight.png');
+    let imageLeft = loadImage('res/falafelFaceLeft.png');
+
+    this.sprite = createSprite(xPos, yPos);
+    this.sprite.addImage("right", imageRight);
+    this.sprite.addImage("left", imageLeft);
+    //this.sprite.addSpeed(xSpeed, xSpeed * 10);
+    this.sprite.position.x = xPos;
+    this.sprite.position.x = yPos;
+    //this.sprite.setVelocity(xSpeed, ySpeed);
+  }
+
+  move() {
+    this.sprite.position.x = this.sprite.position.x + this.xSpeed;
+    this.sprite.position.y = this.sprite.position.y + this.ySpeed;
+
+    console.log(this.sprite.originalWidth);
+  
+    if (this.sprite.position.x + this.sprite.width >= windowWidth) {
+      this.xSpeed = -this.xSpeed;
+      this.sprite.position.x = windowWidth - this.sprite.width;
+      this.sprite.mirrorX(-1);
+      //this.tint();
+      //this.flip();
+    } else if (this.sprite.position.x <= 0) {
+      this.xSpeed = -this.xSpeed;
+      this.sprite.position.x = 0;
+      this.sprite.mirrorX(1);
+      //this.tint();
+      //this.flip();
+    }
+  
+    if (this.sprite.position.y + this.sprite.height/2 >= windowHeight) {
+      this.ySpeed = -this.ySpeed;
+      this.sprite.position.y = windowHeight - this.sprite.height;
+      //this.tint();
+    } else if (this.sprite.position.y <= 0) {
+      this.ySpeed = -this.ySpeed;
+      this.sprite.position.y = 0;
+    }
+  }
+}
 
 class Face {
   constructor(currImageSource, xPos, yPos, xSpeed, ySpeed, topTint) {
@@ -80,34 +129,48 @@ function preload() {}
 
 function setup(faceCount = 20) {
   createCanvas(windowWidth, windowHeight);
-  console.log("setup");
-  console.log(faceCount);
+
+  for (i=0; i < faces.length; i++) {
+    console.log('remove');
+    faces[i].sprite.remove();
+  }
 
   var  i;
+  console.log(faceCount);
   for (i=0; i < faceCount; i++) {
-    xPos = random(width);
-    yPos = random(height);
+    xPos = random(windowWidth);
+    yPos = random(windowHeight);
     xspeed = random(6);
     yspeed = random(6);
-    topTint = random(256);
   
-    faces[i] = new Face('res/falafelFaceRight.png', xPos, yPos, xspeed, yspeed, topTint);
+    //faces[i] = new Face('res/falafelFaceRight.png', xPos, yPos, xspeed, yspeed, 256);
+    faces[i] = new FaceSprite(xPos, yPos, xspeed, yspeed);
   }
 }
 
 function draw() {
   background(0);
-  var i;
-  animateCount = random(faceCount);
 
-  for (i=0; i < animateCount; i++) {
+  //spr = new FaceSprite(width/2, height/2, 4, 4);
+  drawSprites();
+
+  var i;
+  //animateCount = random(faceCount);
+  animateCount = faceCount;
+
+  for (i=0; i < faceCount; i++) {
     faces[i].move();
   }
 }
 
 function setFaceCount() {
   faceCount = document.getElementById('faceCount').value;
-  console.log(faceCount)
 
+  if (!faceCount) {
+    console.log("face count null");
+    faceCount = 1;
+  }
+
+  console.log(faceCount)
   setup(faceCount);
 }
